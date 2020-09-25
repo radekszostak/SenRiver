@@ -7,7 +7,7 @@ import numpy
 
 def multiLine2Line(multiLineString):
     lineString = shapely.ops.linemerge(shapely.wkt.loads(multiLineString))
-    assert lineString.geom_type == "LineString"
+    #assert lineString.geom_type == "LineString"
     return lineString.wkt
 
 def line2MultiPolygon(lineString):
@@ -28,6 +28,6 @@ def line2MultiPolygon(lineString):
                 if dilated.intersects(polygon):
                     polygons.append( polygon )
         polygons = shapely.geometry.MultiPolygon(polygons)
-        assert lineString.geom_type == "MultiPolygon"
+        assert polygons.geom_type == "MultiPolygon"
         return shapely.wkt.dumps(polygons, rounding_precision=1)
 

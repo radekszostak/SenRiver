@@ -7,13 +7,23 @@ from dataloader import *
 import os
 import numpy as np
 import cv2 as cv
+import matplotlib.pyplot as plt
 
 from naturalcolor import getNaturalColor
 
 def getImagePair(r,g,b,ir):
     rgb = np.dstack((b*2.5,g*2.5,r*2.5))#getNaturalColor(b,g,r)
     rgb = rgb[1:-1,1:-1,:]
-    th, mask = cv.threshold(ir,0,255,cv.THRESH_BINARY+cv.THRESH_TRIANGLE)
+    """
+    hist = np.histogram(ir.ravel(),256,[0,256])
+    lab = hist[1][:-1]
+    val = hist[0]
+    fig = plt.figure()
+    ax = fig.add_axes([0,0,1,1])
+    ax.bar(lab,val)
+    plt.show()
+    """
+    th, mask = cv.threshold(ir,19,255,cv.THRESH_BINARY_INV)
     mask = mask[1:-1,1:-1]
     return rgb, mask
 
