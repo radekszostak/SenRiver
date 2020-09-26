@@ -33,9 +33,10 @@ def cropTiffByPolygon(tiff,polygon):
     return out_image
 
 
-subdir = "D:\Downloads\mosaics\S2GM_Q10_20200701_20200930_Danube_STD_v1.3.0_278134\H189V41"
+#subdir = "D:\Downloads\mosaics\S2GM_Q10_20200701_20200930_Danube_STD_v1.3.0_278134\H189V41"
 
-river_name = "Danube"
+order_dir = "D:\Downloads\mosaics\S2GM_Y10_20200101_20201231_Amazon_STD_v1.3.0_522021"
+river_name = "Amazon"
 output_dir = os.path.join("D:\Doktorat\SenRiver\SenRiver\data\pairs",river_name)
 if not os.path.exists(output_dir):
     os.makedirs(output_dir)
@@ -46,7 +47,7 @@ mask_dir = os.path.join(output_dir,'mask')
 if not os.path.exists(mask_dir):
     os.makedirs(mask_dir)
 
-order_dir = "D:\Downloads\mosaics\S2GM_Q10_20200701_20200930_Danube_STD_v1.3.0_278134"
+
 subdirs = os.listdir(order_dir)
 for subdir in subdirs:
     subdir = os.path.join(order_dir,subdir)
