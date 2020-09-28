@@ -9,9 +9,14 @@ import numpy as np
 import cv2 as cv
 import matplotlib.pyplot as plt
 
+from skimage import exposure
+from skimage.segmentation import quickshift, slic, mark_boundaries
+import time
+
 def getImagePair(r,g,b,ir):
     rgb = np.dstack((b*2.5,g*2.5,r*2.5))#getNaturalColor(b,g,r)
     rgb = rgb[1:-1,1:-1,:]
+    ir = ir[1:-1,1:-1]
     """
     hist = np.histogram(ir.ravel(),256,[0,256])
     lab = hist[1][:-1]
@@ -20,9 +25,39 @@ def getImagePair(r,g,b,ir):
     ax = fig.add_axes([0,0,1,1])
     ax.bar(lab,val)
     plt.show()
+    
+    #
+    band_data = np.dstack([rgb,ir])
+    # scale image values from 0.0 - 1.0
+    img = exposure.rescale_intensity(band_data)
+    
+    # do segmentation multiple options with quickshift and slic
+    #seg_start = time.time()
+    # segments = quickshift(img, convert2lab=False)
+    # segments = quickshift(img, ratio=0.8, convert2lab=False)
+    # segments = quickshift(img, ratio=0.99, max_dist=5, convert2lab=False)
+    # segments = slic(img, n_segments=100000, compactness=0.1)
+    # segments = slic(img, n_segments=500000, compactness=0.01)
+    segments = quickshift(img, convert2lab=False)
+    plt.imshow(mark_boundaries(rgb, segments))
+    #plt.show() 
+    #print('segments complete', time.time() - seg_start)
+
+
+    
+    where = np.where(mask == 255)
+    seg_set = set([])
+    for x, y in zip(where[0],where[1]):
+        seg_set.add(segments[x][y])
+    for i, row in enumerate(segments):
+        for j, val in enumerate(row):
+            if val in seg_set:
+                mask[i][j] = 255
+    plt.imshow(mask)
+    #plt.show()
+    #mask = mask[1:-1,1:-1]
     """
     th, mask = cv.threshold(ir,19,255,cv.THRESH_BINARY_INV)
-    mask = mask[1:-1,1:-1]
     return rgb, mask
 
 def cropTiffByPolygon(tiff,polygon):
@@ -43,6 +78,9 @@ if not os.path.exists(output_dir):
 rgb_dir = os.path.join(output_dir,'rgb')
 if not os.path.exists(rgb_dir):
     os.makedirs(rgb_dir)
+ir_dir = os.path.join(output_dir,'ir')
+if not os.path.exists(ir_dir):
+    os.makedirs(ir_dir)
 mask_dir = os.path.join(output_dir,'mask')
 if not os.path.exists(mask_dir):
     os.makedirs(mask_dir)
@@ -83,8 +121,8 @@ for subdir in subdirs:
                 g = cropTiffByPolygon(tiffs["g"],polygon)
                 b = cropTiffByPolygon(tiffs["b"],polygon)
                 ir = cropTiffByPolygon(tiffs["ir"],polygon)
-                rgb, mask = getImagePair(r,g,b,ir)
+                rgb, ir = getImagePair(r,g,b,ir)
                 file_base_name = "{}_{}_{}_{}".format(*polygon.bounds)
                 cv.imwrite(os.path.join(rgb_dir,file_base_name+".jpg"),rgb)
-                cv.imwrite(os.path.join(mask_dir,file_base_name+".png"),mask)
+                cv.imwrite(os.path.join(ir_dir,file_base_name+".png"),ir)
         
